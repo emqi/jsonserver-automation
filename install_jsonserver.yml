@@ -1,0 +1,33 @@
+- hosts: json_nodes
+  become: yes
+  tasks:
+    - name: "install curl"
+      yum:
+        name: curl
+        state: latest
+    - name: "Run a shell command"
+      shell: curl --silent --location https://rpm.nodesource.com/setup_6.x | sudo bash -
+    - name: "Install nodejs"
+      yum:
+        name: nodejs
+        state: latest
+    - name: "install gcc-c++ make"
+      yum:
+        name: gcc-c++,make
+        state: latest
+    - name: "Clone repository"
+      git:
+        repo: "https://github.com/typicode/json-server.git"
+        dest: ~/ec2-user/json
+        clone: no
+        update: yes
+    - name: "Install server"
+      shell: npm install -g json-server
+    - name: 'copy db.json'
+      file:
+        src: "db.json"
+        dest: ~/ec2-user/json
+        state: link
+        force: yes
+    - name: "watch on localhost ur db"
+      shell: json-server --watch db.json
